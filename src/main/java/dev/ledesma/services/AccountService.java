@@ -10,9 +10,8 @@ public interface AccountService {
     Account getAccountById(int id);
     List<Account> getAllAccounts();
     List<Account> getAccountsByInitials(String initials);
-
+    List<Account> findByOrderByPointsDesc();
     Account deleteAccount(int id);
-
     Account updateAccount(int id, Account account);
 
 }

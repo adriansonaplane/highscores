@@ -38,7 +38,7 @@ public class AccountController {
     @ResponseBody
     public List<Account> allAccounts(@RequestParam(required = false) String initials){
 
-        if(initials == null){ return accountService.getAllAccounts();}
+        if(initials == null){ return accountService.findByOrderByPointsDesc();}
         else { return accountService.getAccountsByInitials(initials); }
     }
 

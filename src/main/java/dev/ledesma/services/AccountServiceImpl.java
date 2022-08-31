@@ -1,9 +1,12 @@
 package dev.ledesma.services;
 
 import dev.ledesma.entities.Account;
+import dev.ledesma.exceptions.AccountNotFoundException;
 import dev.ledesma.exceptions.PointsAreNegativeException;
 import dev.ledesma.repos.AccountRepo;
+import dev.ledesma.sanitizer.AccountSanitizer;
 import dev.ledesma.utils.SortByScore;
+import dev.ledesma.validator.AccountValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,22 +19,24 @@ public class AccountServiceImpl implements AccountService {
 
     @Autowired
     AccountRepo accountRepo;
+    AccountSanitizer accountSanitizer;
+
+    AccountValidator accountValidator;
 
     @Override
     public Account registerAccount(Account account) {
 
         Account tempAccount = account;
+
         tempAccount.setInitials(tempAccount.getInitials().toUpperCase());
 
         if(tempAccount.getInitials().length() > 3){
-
             tempAccount.setInitials(tempAccount.getInitials().substring(0, 3));
-
         }
 
-        if ( tempAccount.getPoints() < 0 ){ throw new PointsAreNegativeException(); }
+        if(tempAccount.getPoints() < 0 ){ throw new PointsAreNegativeException(); }
 
-        Account savedAccount = accountRepo.save(tempAccount);
+        Account savedAccount = this.accountRepo.save(tempAccount);
         return savedAccount;
     }
 
@@ -41,7 +46,7 @@ public class AccountServiceImpl implements AccountService {
         Optional<Account> possibleAccount = this.accountRepo.findById(id);
 
         if (possibleAccount.isPresent()) { return possibleAccount.get(); }
-        else { throw new RuntimeException(); }
+        else { throw new AccountNotFoundException(); }
 
     }
 
@@ -58,6 +63,13 @@ public class AccountServiceImpl implements AccountService {
     public List<Account> getAccountsByInitials(String initials) {
 
         return this.accountRepo.getAccountsByInitials(initials.toUpperCase());
+    }
+
+    @Override
+    public List<Account> findByOrderByPointsDesc() {
+
+        List<Account> accounts = this.accountRepo.findByOrderByPointsDesc();
+        return accounts;
     }
 
     @Override
@@ -78,7 +90,7 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public Account updateAccount(int id, Account account) {
 
-        Optional <Account> possibleAccount = accountRepo.findById(id);
+        Optional <Account> possibleAccount = this.accountRepo.findById(id);
 
         if(possibleAccount.isPresent()){
 
@@ -89,7 +101,7 @@ public class AccountServiceImpl implements AccountService {
             if (account.getPoints() < 0) { throw new PointsAreNegativeException(); }
             else { tempAccount.setPoints(account.getPoints()); }
 
-            return accountRepo.save(tempAccount);
+            return this.accountRepo.save(tempAccount);
 
         }else{
             throw new RuntimeException();

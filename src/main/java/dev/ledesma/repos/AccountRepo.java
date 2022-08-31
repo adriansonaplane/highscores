@@ -10,4 +10,8 @@ import java.util.List;
 public interface AccountRepo extends JpaRepository<Account, Integer> {
 
     List<Account> getAccountsByInitials(String initials);
+
+    List<Account> findByOrderByPointsDesc();
+
+    List<Account> findByOrderByInitialsDesc();
 }
